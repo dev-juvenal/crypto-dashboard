@@ -27,17 +27,17 @@ export function PriceChart({ cryptoId }: Props) {
       <LineChart data={data}>
         <XAxis
           dataKey="timestamp"
-          tickFormatter={formatDate}
+          tickFormatter={(v: number) => formatDate(v)}
           tick={{ fontSize: 12 }}
         />
         <YAxis
           domain={["auto", "auto"]}
-          tickFormatter={(v) => `${v.toFixed(0)}€`}
+          tickFormatter={(v: number) => `${v.toFixed(0)}€`}
           tick={{ fontSize: 12 }}
         />
         <Tooltip
-          formatter={(v: number) => formatPrice(v)}
-          labelFormatter={formatDate}
+          formatter={(value) => formatPrice(value as number)}
+          labelFormatter={(label) => formatDate(label as number)}
         />
         <Line
           type="monotone"
