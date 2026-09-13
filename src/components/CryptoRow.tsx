@@ -4,9 +4,11 @@ import type { Crypto } from "../types/crypto";
 interface Props {
   crypto: Crypto;
   onClick: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
 }
 
-export function CryptoRow({ crypto, onClick }: Props) {
+export function CryptoRow({ crypto, onClick, isFavorite, onToggleFavorite }: Props) {
   const change = crypto.price_change_percentage_24h;
   const isPositive = change !== null && change >= 0;
 
@@ -15,6 +17,15 @@ export function CryptoRow({ crypto, onClick }: Props) {
       onClick={onClick}
       className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
     >
+      <td className="py-3 pl-2" onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={() => onToggleFavorite(crypto.id)}
+          className="text-xl leading-none hover:scale-125 transition-transform"
+          aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+        >
+          {isFavorite ? "⭐" : "☆"}
+        </button>
+      </td>
       <td className="py-3 text-gray-400 text-sm">{crypto.market_cap_rank}</td>
       <td className="py-3">
         <div className="flex items-center gap-3">

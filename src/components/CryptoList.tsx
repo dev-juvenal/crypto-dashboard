@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { fetchTopCryptos } from "../api/coingecko";
 import { useDebounce } from "../hooks/useDebounce";
+import { useFavorites } from "../hooks/useFavorites";
 import { CryptoRow } from "./CryptoRow";
 import { SearchBar } from "./SearchBar";
 import type { Crypto } from "../types/crypto";
@@ -17,7 +18,9 @@ export function CryptoList({ onSelect }: Props) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const debouncedSearch = useDebounce(search, 300);
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["topCryptos"],
@@ -61,11 +64,13 @@ export function CryptoList({ onSelect }: Props) {
     }
   }
 
-  const filtered = data.filter(
-    (c) =>
-      c.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      c.symbol.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+  const filtered = data
+    .filter(
+      (c) =>
+        c.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        c.symbol.toLowerCase().includes(debouncedSearch.toLowerCase())
+    )
+    .filter((c) => !showFavoritesOnly || isFavorite(c.id));
 
   const sorted = [...filtered].sort((a, b) => {
     const dir = sortDir === "asc" ? 1 : -1;
@@ -94,14 +99,27 @@ export function CryptoList({ onSelect }: Props) {
 
       <SearchBar value={search} onChange={setSearch} />
 
+      <label className="flex items-center gap-2 mb-4 text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={showFavoritesOnly}
+          onChange={(e) => setShowFavoritesOnly(e.target.checked)}
+          className="w-4 h-4 accent-yellow-500"
+        />
+        ⭐ Favoris uniquement
+      </label>
+
       {sorted.length === 0 ? (
         <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-          Aucun résultat pour "{debouncedSearch}"
+          {showFavoritesOnly
+            ? "Aucun favori pour l'instant. Clique sur ☆ pour en ajouter."
+            : `Aucun résultat pour "${debouncedSearch}"`}
         </p>
       ) : (
         <table className="w-full">
           <thead>
             <tr className="text-left text-gray-500 dark:text-gray-400 text-sm border-b border-gray-200 dark:border-gray-700">
+              <th className="py-2 w-10"></th>
               <th
                 className="py-2 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 select-none"
                 onClick={() => handleSort("rank")}
@@ -134,6 +152,8 @@ export function CryptoList({ onSelect }: Props) {
                 key={crypto.id}
                 crypto={crypto}
                 onClick={() => onSelect(crypto)}
+                isFavorite={isFavorite(crypto.id)}
+                onToggleFavorite={toggleFavorite}
               />
             ))}
           </tbody>
