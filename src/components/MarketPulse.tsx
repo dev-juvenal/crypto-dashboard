@@ -1,14 +1,11 @@
 import { Activity, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
-import { formatPrice } from "../utils/format";
 import type { Crypto } from "../types/crypto";
-import type { Currency } from "../hooks/useCurrency";
 
 interface Props {
   data: Crypto[];
-  currency: Currency;
 }
 
-export function MarketPulse({ data, currency }: Props) {
+export function MarketPulse({ data }: Props) {
   if (data.length === 0) return null;
 
   const bullishCount = data.filter(

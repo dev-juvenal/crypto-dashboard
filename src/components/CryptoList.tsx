@@ -177,7 +177,7 @@ export function CryptoList({ onSelect, currency }: Props) {
           )}
         </div>
 
-        <MarketPulse data={data} currency={currency} />
+        <MarketPulse data={data} />
 
         <SearchBar value={search} onChange={setSearch} />
 
