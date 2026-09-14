@@ -1,9 +1,13 @@
 import type { Crypto, MarketChartResponse, MarketChartPoint } from "../types/crypto";
+import type { Currency } from "../hooks/useCurrency";
 
 const BASE_URL = "https://api.coingecko.com/api/v3";
 
-export async function fetchTopCryptos(limit = 20): Promise<Crypto[]> {
-  const url = `${BASE_URL}/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`;
+export async function fetchTopCryptos(
+  currency: Currency = "eur",
+  limit = 20
+): Promise<Crypto[]> {
+  const url = `${BASE_URL}/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -16,8 +20,12 @@ export async function fetchTopCryptos(limit = 20): Promise<Crypto[]> {
   return res.json();
 }
 
-export async function fetchMarketChart(id: string, days = 7): Promise<MarketChartPoint[]> {
-  const url = `${BASE_URL}/coins/${id}/market_chart?vs_currency=eur&days=${days}`;
+export async function fetchMarketChart(
+  id: string,
+  currency: Currency = "eur",
+  days = 7
+): Promise<MarketChartPoint[]> {
+  const url = `${BASE_URL}/coins/${id}/market_chart?vs_currency=${currency}&days=${days}`;
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -25,6 +33,5 @@ export async function fetchMarketChart(id: string, days = 7): Promise<MarketChar
   }
 
   const data: MarketChartResponse = await res.json();
-
   return data.prices.map(([timestamp, price]) => ({ timestamp, price }));
 }

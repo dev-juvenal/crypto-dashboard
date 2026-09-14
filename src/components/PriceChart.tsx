@@ -1,21 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { fetchMarketChart } from "../api/coingecko";
 import { formatDate, formatPrice } from "../utils/format";
 import type { MarketChartPoint } from "../types/crypto";
+import type { Currency } from "../hooks/useCurrency";
 
 interface Props {
   cryptoId: string;
+  currency: Currency;
 }
 
-export function PriceChart({ cryptoId }: Props) {
+export function PriceChart({ cryptoId, currency }: Props) {
   const { data, isLoading, isError } = useQuery<MarketChartPoint[]>({
-    queryKey: ["marketChart", cryptoId],
-    queryFn: () => fetchMarketChart(cryptoId, 7),
+    queryKey: ["marketChart", cryptoId, currency],
+    queryFn: () => fetchMarketChart(cryptoId, currency, 7),
   });
 
   if (isLoading) {
-    return <div className="h-64 bg-gray-100 rounded animate-pulse" />;
+    return (
+      <div className="h-64 bg-gray-100 dark:bg-gray-700 rounded animate-pulse" />
+    );
   }
 
   if (isError || !data) {
@@ -28,15 +39,15 @@ export function PriceChart({ cryptoId }: Props) {
         <XAxis
           dataKey="timestamp"
           tickFormatter={(v: number) => formatDate(v)}
-          tick={{ fontSize: 12 }}
+          tick={{ fontSize: 12, fill: "currentColor" }}
         />
         <YAxis
           domain={["auto", "auto"]}
-          tickFormatter={(v: number) => `${v.toFixed(0)}€`}
-          tick={{ fontSize: 12 }}
+          tickFormatter={(v: number) => formatPrice(v, currency)}
+          tick={{ fontSize: 12, fill: "currentColor" }}
         />
         <Tooltip
-          formatter={(value) => formatPrice(value as number)}
+          formatter={(value) => formatPrice(value as number, currency)}
           labelFormatter={(label) => formatDate(label as number)}
         />
         <Line

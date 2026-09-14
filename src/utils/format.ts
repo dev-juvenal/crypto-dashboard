@@ -1,14 +1,27 @@
-export function formatPrice(value: number): string {
+import type { Currency } from "../hooks/useCurrency";
+
+export function formatPrice(value: number, currency: Currency = "eur"): string {
+  const currencyMap: Record<Currency, string> = {
+    eur: "EUR",
+    usd: "USD",
+    gbp: "GBP",
+    jpy: "JPY",
+    chf: "CHF",
+  };
+
+  // Pour les grosses valeurs, on ne met pas de décimales
   if (value >= 1000) {
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
-      currency: "EUR",
+      currency: currencyMap[currency],
       maximumFractionDigits: 0,
     }).format(value);
   }
+
+  // Pour les petites valeurs, on met 4 décimales
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
+    currency: currencyMap[currency],
     maximumFractionDigits: 4,
   }).format(value);
 }
